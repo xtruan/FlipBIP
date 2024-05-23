@@ -19,8 +19,11 @@
 
 #define COIN_BTC 0
 #define COIN_DOGE 3
+#define COIN_DASH 5
 #define COIN_ETH 60
 #define COIN_ZEC 133
+#define COIN_PIRATE 660
+#define COIN_COSA 770
 
 #define TEXT_BUFFER_SIZE 256
 
@@ -73,8 +76,11 @@ typedef enum {
 
 typedef enum {
     FlipBipCoinBTC0,
+    FlipBipCoinCOSA3,
     FlipBipCoinETH60,
+    FlipBipCoinDASH3,
     FlipBipCoinDOGE3,
+    FlipBipCoinPIRATE3,
     FlipBipCoinZEC133,
 } FlipBipCoin;
 
@@ -94,8 +100,11 @@ typedef enum {
 
 typedef enum {
     SubmenuIndexScene1BTC = 10,
+    SubmenuIndexScene1COSA,
     SubmenuIndexScene1ETH,
+    SubmenuIndexScene1DASH,
     SubmenuIndexScene1DOGE,
+    SubmenuIndexScene1PIRATE,
     SubmenuIndexScene1ZEC,
     SubmenuIndexScene1New,
     SubmenuIndexScene1Renew,
