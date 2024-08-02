@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "../options.h"
 #include "ed25519_donna.h"
 #include "../memzero.h"
 
