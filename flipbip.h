@@ -17,10 +17,10 @@
 
 #define FLIPBIP_VERSION "v1.16"
 
-#define COIN_BTC 0
+#define COIN_BTC  0
 #define COIN_DOGE 3
-#define COIN_ETH 60
-#define COIN_ZEC 133
+#define COIN_ETH  60
+#define COIN_ZEC  133
 
 #define TEXT_BUFFER_SIZE 256
 
