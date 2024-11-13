@@ -22,7 +22,6 @@ void flipbip_scene_menu_on_enter(void* context) {
 
     if(flipbip_has_file(FlipBipFileKey, NULL, false) &&
        flipbip_has_file(FlipBipFileDat, NULL, false)) {
-
         for(size_t coin_type = 0; coin_type < NUM_COINS; coin_type++) {
             char wallet_menu_item[17] = "View      wallet";
             strcpy(wallet_menu_item + 5, COIN_TEXT_ARRAY[coin_type][COIN_TEXT_LABEL]);
@@ -33,7 +32,7 @@ void flipbip_scene_menu_on_enter(void* context) {
                 flipbip_scene_menu_submenu_callback,
                 app);
         }
-        
+
         submenu_add_item(
             app->submenu,
             "Regenerate wallet",

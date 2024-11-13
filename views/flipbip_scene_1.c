@@ -120,10 +120,16 @@ static void flipbip_scene_1_init_address(
     hdnode_private_ckd(s_addr_node, addr_index);
     hdnode_fill_public_key(s_addr_node);
 
-    if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == FlipBipCoinBTC0) { // BTC / DOGE style address
+    if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] ==
+       FlipBipCoinBTC0) { // BTC / DOGE style address
         // BTC / DOGE style address
         ecdsa_get_address(
-            s_addr_node->public_key, COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_VERS], HASHER_SHA2_RIPEMD, HASHER_SHA2D, buf, buflen);
+            s_addr_node->public_key,
+            COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_VERS],
+            HASHER_SHA2_RIPEMD,
+            HASHER_SHA2D,
+            buf,
+            buflen);
         strcpy(addr_text, buf);
         //ecdsa_get_wif(addr_node->private_key, WIF_VERSION, HASHER_SHA2D, buf, buflen);
 
@@ -137,7 +143,12 @@ static void flipbip_scene_1_init_address(
 
     } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == FlipBipCoinZEC133) { // ZEC
         ecdsa_get_address(
-            s_addr_node->public_key, COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_VERS], HASHER_SHA2_RIPEMD, HASHER_SHA2D, buf, buflen);
+            s_addr_node->public_key,
+            COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_VERS],
+            HASHER_SHA2_RIPEMD,
+            HASHER_SHA2D,
+            buf,
+            buflen);
         addr_text[0] = 't';
         strcpy(addr_text, buf);
     }
@@ -415,7 +426,8 @@ static int flipbip_scene_1_model_init(
 
     // root
     uint32_t fingerprint = 0;
-    hdnode_serialize_private(root, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPRV_VERS], buf, buflen);
+    hdnode_serialize_private(
+        root, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPRV_VERS], buf, buflen);
     char* xprv_root = malloc(buflen + 1);
     strncpy(xprv_root, buf, buflen);
     model->xprv_root = xprv_root;
@@ -434,12 +446,14 @@ static int flipbip_scene_1_model_init(
     fingerprint = hdnode_fingerprint(node);
     hdnode_private_ckd_prime(node, DERIV_ACCOUNT); // account
 
-    hdnode_serialize_private(node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPRV_VERS], buf, buflen);
+    hdnode_serialize_private(
+        node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPRV_VERS], buf, buflen);
     char* xprv_acc = malloc(buflen + 1);
     strncpy(xprv_acc, buf, buflen);
     model->xprv_account = xprv_acc;
 
-    hdnode_serialize_public(node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPUB_VERS], buf, buflen);
+    hdnode_serialize_public(
+        node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPUB_VERS], buf, buflen);
     char* xpub_acc = malloc(buflen + 1);
     strncpy(xpub_acc, buf, buflen);
     model->xpub_account = xpub_acc;
@@ -448,12 +462,14 @@ static int flipbip_scene_1_model_init(
     fingerprint = hdnode_fingerprint(node);
     hdnode_private_ckd(node, DERIV_CHANGE); // external/internal (change)
 
-    hdnode_serialize_private(node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPRV_VERS], buf, buflen);
+    hdnode_serialize_private(
+        node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPRV_VERS], buf, buflen);
     char* xprv_ext = malloc(buflen + 1);
     strncpy(xprv_ext, buf, buflen);
     model->xprv_extended = xprv_ext;
 
-    hdnode_serialize_public(node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPUB_VERS], buf, buflen);
+    hdnode_serialize_public(
+        node, fingerprint, COIN_INFO_ARRAY[coin_type][COIN_INFO_XPUB_VERS], buf, buflen);
     char* xpub_ext = malloc(buflen + 1);
     strncpy(xpub_ext, buf, buflen);
     model->xpub_extended = xpub_ext;
@@ -472,7 +488,8 @@ static int flipbip_scene_1_model_init(
         const unsigned char addr_num[1] = {a};
         flipbip_btox(addr_num, 1, buf + strlen(buf));
         strcpy(buf + strlen(buf), TEXT_QRFILE_EXT);
-        flipbip_save_qrfile(COIN_TEXT_ARRAY[coin_type][COIN_TEXT_NAME], model->recv_addresses[a], buf);
+        flipbip_save_qrfile(
+            COIN_TEXT_ARRAY[coin_type][COIN_TEXT_NAME], model->recv_addresses[a], buf);
         memzero(buf, buflen);
     }
 
