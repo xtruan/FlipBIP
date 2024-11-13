@@ -121,7 +121,7 @@ static void flipbip_scene_1_init_address(
     hdnode_fill_public_key(s_addr_node);
 
     if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] ==
-       FlipBipCoinBTC0) { // BTC / DOGE style address
+       CoinTypeBTC0) { // BTC / DOGE style address
         // BTC / DOGE style address
         ecdsa_get_address(
             s_addr_node->public_key,
@@ -133,7 +133,7 @@ static void flipbip_scene_1_init_address(
         strcpy(addr_text, buf);
         //ecdsa_get_wif(addr_node->private_key, WIF_VERSION, HASHER_SHA2D, buf, buflen);
 
-    } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == FlipBipCoinETH60) { // ETH
+    } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == CoinTypeETH60) { // ETH
         // ETH style address
         hdnode_get_ethereum_pubkeyhash(s_addr_node, (uint8_t*)buf);
         addr_text[0] = '0';
@@ -141,7 +141,7 @@ static void flipbip_scene_1_init_address(
         // Convert the hash to a hex string
         flipbip_btox((uint8_t*)buf, 20, addr_text + 2);
 
-    } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == FlipBipCoinZEC133) { // ZEC
+    } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == CoinTypeZEC133) { // ZEC
         ecdsa_get_address(
             s_addr_node->public_key,
             COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_VERS],
@@ -294,7 +294,7 @@ void flipbip_scene_1_draw(Canvas* canvas, FlipBipScene1Model* model) {
         flipbip_scene_1_draw_generic(model->xpub_extended, 20, false);
     } else if(model->page >= PAGE_ADDR_BEGIN && model->page <= PAGE_ADDR_END) {
         size_t line_len = 12;
-        if(model->coin_type == FlipBipCoinETH60) {
+        if(model->coin_type == CoinTypeETH60) {
             line_len = 14;
         }
         flipbip_scene_1_draw_generic(
@@ -585,7 +585,7 @@ void flipbip_scene_1_exit(void* context) {
         {
             model->page = PAGE_LOADING;
             model->strength = FlipBipStrength256;
-            model->coin_type = FlipBipCoinBTC0;
+            model->coin_type = CoinTypeBTC0;
             memzero(model->seed, 64);
             // if mnemonic_only is true, then we don't need to free the data here
             if(!model->mnemonic_only) {

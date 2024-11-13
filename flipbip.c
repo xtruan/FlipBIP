@@ -131,7 +131,7 @@ FlipBip* flipbip_app_alloc() {
     app->passphrase = FlipBipPassphraseOff;
 
     // Main menu
-    app->coin_type = FlipBipCoinBTC0; // 0 (BTC)
+    app->coin_type = CoinTypeBTC0; // 0 (BTC)
     app->overwrite_saved_seed = 0;
     app->import_from_mnemonic = 0;
     app->mnemonic_menu_text = MNEMONIC_MENU_DEFAULT;

@@ -75,9 +75,9 @@ bool flipbip_scene_menu_on_event(void* context, SceneManagerEvent event) {
         if(event.event < SubmenuIndexScene1New) {
             app->overwrite_saved_seed = 0;
             app->import_from_mnemonic = 0;
-            app->coin_type = event.event; // FlipBipCoin
+            app->coin_type = event.event; // CoinType
             scene_manager_set_scene_state(
-                app->scene_manager, FlipBipSceneMenu, event.event); // FlipBipCoin
+                app->scene_manager, FlipBipSceneMenu, event.event); // CoinType
             scene_manager_next_scene(app->scene_manager, FlipBipSceneScene_1);
             return true;
         } else if(event.event == SubmenuIndexScene1New) {
