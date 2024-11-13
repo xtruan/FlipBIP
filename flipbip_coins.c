@@ -8,7 +8,7 @@ const uint32_t COIN_INFO_ARRAY[NUM_COINS][COIN_INFO_SIZE] = {
     {133, 0x0488ade4, 0x0488b21e, 0x1cb8, 0x80, CoinTypeZEC133},
 };
 
-// coin_name, derivation_path, coin name
+// coin_label, derivation_path, coin name
 const char* COIN_TEXT_ARRAY[NUM_COINS][COIN_TEXT_SIZE] = {
     {"BTC", "m/44'/0'/0'/0", "bitcoin:"},
     {"ETH", "m/44'/60'/0'/0", "ethereum:"},
