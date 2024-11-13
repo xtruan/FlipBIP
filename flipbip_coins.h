@@ -21,10 +21,11 @@ typedef enum {
 // bip44_coin, xprv_version, xpub_version, addr_version, wif_version, addr_format
 extern const uint32_t COIN_INFO_ARRAY[NUM_COINS][COIN_INFO_SIZE];
 
-#define COIN_TEXT_SIZE  3
-#define COIN_TEXT_LABEL 0
-#define COIN_TEXT_DERIV 1
-#define COIN_TEXT_NAME  2
+#define COIN_TEXT_SIZE   4
+#define COIN_TEXT_LABEL  0
+#define COIN_TEXT_DERIV  1
+#define COIN_TEXT_NAME   2
+#define COIN_TEXT_PREFIX 3
 
-// coin_label, derivation_path, coin name
+// coin_label, derivation_path, coin_name, static_prefix
 extern const char* COIN_TEXT_ARRAY[NUM_COINS][COIN_TEXT_SIZE];

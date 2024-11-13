@@ -120,8 +120,7 @@ static void flipbip_scene_1_init_address(
     hdnode_private_ckd(s_addr_node, addr_index);
     hdnode_fill_public_key(s_addr_node);
 
-    if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] ==
-       CoinTypeBTC0) { // BTC / DOGE style address
+    if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == CoinTypeBTC0) {
         // BTC / DOGE style address
         ecdsa_get_address(
             s_addr_node->public_key,
@@ -130,27 +129,20 @@ static void flipbip_scene_1_init_address(
             HASHER_SHA2D,
             buf,
             buflen);
+        // If prefix is set (not '_') then override beginning of addr_text
+        if(COIN_TEXT_ARRAY[coin_type][COIN_TEXT_PREFIX][0] != '_') {
+            addr_text[0] = COIN_TEXT_ARRAY[coin_type][COIN_TEXT_PREFIX][0];
+        }
         strcpy(addr_text, buf);
         //ecdsa_get_wif(addr_node->private_key, WIF_VERSION, HASHER_SHA2D, buf, buflen);
 
-    } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == CoinTypeETH60) { // ETH
+    } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == CoinTypeETH60) {
         // ETH style address
         hdnode_get_ethereum_pubkeyhash(s_addr_node, (uint8_t*)buf);
         addr_text[0] = '0';
         addr_text[1] = 'x';
         // Convert the hash to a hex string
         flipbip_btox((uint8_t*)buf, 20, addr_text + 2);
-
-    } else if(COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_FMT] == CoinTypeZEC133) { // ZEC
-        ecdsa_get_address(
-            s_addr_node->public_key,
-            COIN_INFO_ARRAY[coin_type][COIN_INFO_ADDR_VERS],
-            HASHER_SHA2_RIPEMD,
-            HASHER_SHA2D,
-            buf,
-            buflen);
-        addr_text[0] = 't';
-        strcpy(addr_text, buf);
     }
 
     // Clear the address node
