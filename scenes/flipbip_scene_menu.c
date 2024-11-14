@@ -22,7 +22,7 @@ void flipbip_scene_menu_on_enter(void* context) {
 
     if(flipbip_has_file(FlipBipFileKey, NULL, false) &&
        flipbip_has_file(FlipBipFileDat, NULL, false)) {
-        for(size_t coin_type = 0; coin_type < NUM_COINS; coin_type++) {
+        for(uint32_t coin_type = 0; coin_type < NUM_COINS; coin_type++) {
             char wallet_menu_item[17] = "View      wallet";
             strncpy(
                 wallet_menu_item + 5,
