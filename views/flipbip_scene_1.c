@@ -641,7 +641,7 @@ void flipbip_scene_1_enter(void* context) {
     }
 
     // Wait a beat to allow the display time to update to the loading screen
-    furi_thread_flags_wait(0, FuriFlagWaitAny, 20);
+    furi_thread_flags_wait(0, FuriFlagWaitAny, 50);
 
     //flipbip_play_happy_bump(app);
     //notification_message(app->notification, &sequence_blink_cyan_100);

@@ -14,7 +14,6 @@
 #include <gui/modules/text_input.h>
 #include "scenes/flipbip_scene.h"
 #include "views/flipbip_scene_1.h"
-
 #include "flipbip_coins.h"
 
 #define FLIPBIP_VERSION  "v1.18"
@@ -81,6 +80,7 @@ typedef enum {
     FlipBipStatusMnemonicCheckError = 13,
 } FlipBipStatus;
 
+// There's a scene ID for each coin, then these scenes are after so need to offset the first entry by at least NUM_COINS
 typedef enum {
     SubmenuIndexScene1New = NUM_COINS + 1,
     SubmenuIndexScene1Renew,

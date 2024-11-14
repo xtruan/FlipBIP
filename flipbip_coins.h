@@ -27,5 +27,5 @@ extern const uint32_t COIN_INFO_ARRAY[NUM_COINS][COIN_INFO_SIZE];
 #define COIN_TEXT_NAME   2
 #define COIN_TEXT_PREFIX 3
 
-// coin_label, derivation_path, coin_name, static_prefix
+// coin_label, derivation_path, coin_name, static_prefix ("_" for none)
 extern const char* COIN_TEXT_ARRAY[NUM_COINS][COIN_TEXT_SIZE];
