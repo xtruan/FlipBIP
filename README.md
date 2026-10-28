@@ -7,7 +7,7 @@
 
 ## Background
 
-This is a fork of the FlipBIP application with support for the integrated secure enclave of the Flipper Zero.
+This is a fork of the FlipBIP application with support for the integrated secure enclave of the Flipper Zero. This functionality was rolled back into the original app as of v2.1.
 
 ## How to install on Flipper Zero
 - Install `ufbt` if you haven't already. Usually you do it with `python3 -m pip install ufbt`
