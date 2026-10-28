@@ -44,8 +44,10 @@
 #define TEXT_XMR_SEED_1      "Monero seed, words 1-12:"
 #define TEXT_XMR_SEED_2      "Monero seed, words 13-25:"
 #define TEXT_QRFILE_EXT      ".qrcode"
-#define WARN_INSECURE_TEXT_1 "Recommendation:"
-#define WARN_INSECURE_TEXT_2 "Set BIP39 Passphrase"
+#define WARN_TITLE           "Recommendation:"
+#define WARN_TITLE_PLURAL    "Recommendations:"
+#define WARN_PASSPHRASE      "Set BIP39 Passphrase"
+#define WARN_LEGACY          "Use Secure Enclave"
 
 static const char TEXT_INFO[] = "-Scroll pages with up/down-"
                                 "p1,2)   BIP39 Mnemonic/Seed"
@@ -94,6 +96,7 @@ typedef struct {
     int page;
     uint32_t coin_type;
     bool warn_insecure;
+    bool warn_legacy; // legacy encryption on a Flipper with a secure enclave
     const char* derivation_text;
     const char* error; // set when page == PAGE_ERROR
     FlipBipWallet* wallet; // NULL unless fully derived
@@ -179,7 +182,8 @@ static int flipbip_scene_1_wrap_chars(
         line[len + 1] = '\0';
         if(len > 0 && (x + canvas_string_width(canvas, line) > 128 || len + 2 >= sizeof(line))) {
             line[len] = '\0';
-            if(draw) canvas_draw_str_aligned(canvas, x, y0 + lines * pitch, AlignLeft, AlignTop, line);
+            if(draw)
+                canvas_draw_str_aligned(canvas, x, y0 + lines * pitch, AlignLeft, AlignTop, line);
             lines++;
             line[0] = *p;
             line[1] = '\0';
@@ -263,7 +267,8 @@ static void flipbip_scene_1_draw_mnemonic(Canvas* canvas, const char* mnemonic) 
     if(flipbip_scene_1_wrap(canvas, mnemonic, 0, 24, 0, 0, false) <= 7) {
         flipbip_scene_1_wrap(canvas, mnemonic, 0, 24, 1, 0, true);
     } else {
-        canvas_draw_str_aligned(canvas, 1, 0, AlignLeft, AlignTop, "First 4 letters of each word:");
+        canvas_draw_str_aligned(
+            canvas, 1, 0, AlignLeft, AlignTop, "First 4 letters of each word:");
         flipbip_scene_1_wrap(canvas, mnemonic, 0, 24, 10, 4, true);
     }
 }
@@ -310,7 +315,7 @@ static void flipbip_scene_1_draw_address(Canvas* canvas, const FlipBipScene1Mode
     // header: "<coin> receive address:"            "/N"
     int extra_space = 1;
     const bool xmr = flipbip_coin_fmt(model->coin_type) == CoinTypeXMR128;
-    if (xmr) {
+    if(xmr) {
         extra_space = 3;
     }
     canvas_set_font(canvas, FontSecondary);
@@ -379,9 +384,13 @@ static void flipbip_scene_1_draw(Canvas* canvas, void* _model) {
         if(model->derivation_text) canvas_draw_str(canvas, 7, 30, model->derivation_text);
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 125, 2, AlignRight, AlignTop, FLIPBIP_VERSION);
-        if(model->warn_insecure) {
-            canvas_draw_str(canvas, 2, 50, WARN_INSECURE_TEXT_1);
-            canvas_draw_str(canvas, 2, 60, WARN_INSECURE_TEXT_2);
+        if(model->warn_insecure && model->warn_legacy) {
+            canvas_draw_str(canvas, 2, 41, WARN_TITLE_PLURAL);
+            canvas_draw_str(canvas, 2, 51, WARN_PASSPHRASE);
+            canvas_draw_str(canvas, 2, 61, WARN_LEGACY);
+        } else if(model->warn_insecure || model->warn_legacy) {
+            canvas_draw_str(canvas, 2, 50, WARN_TITLE);
+            canvas_draw_str(canvas, 2, 60, model->warn_insecure ? WARN_PASSPHRASE : WARN_LEGACY);
         }
         return;
     }
@@ -542,17 +551,19 @@ static FlipBipStatus flipbip_wallet_init(
     const int strength,
     const uint32_t coin_type,
     const bool overwrite,
-    const char* passphrase_text) {
+    const char* passphrase_text,
+    const FlipBipEncryption encryption,
+    const bool enclave_available) {
     // Generate and save a new mnemonic if asked to, or if none is saved yet
     bool mnemonic_only = false;
-    if(overwrite || (!flipbip_has_file(FlipBipFileKey, NULL, false) &&
-                     !flipbip_has_file(FlipBipFileDat, NULL, false))) {
+    const FlipBipWalletFormat format = flipbip_wallet_format();
+    if(overwrite || format == FlipBipWalletNone) {
         mnemonic_only = true;
         const char* mnemonic_gen = mnemonic_generate(strength);
         FlipBipStatus status = FlipBipStatusSuccess;
         if(mnemonic_check(mnemonic_gen) == 0) {
             status = FlipBipStatusMnemonicCheckError;
-        } else if(!flipbip_save_file_secure(mnemonic_gen)) {
+        } else if(!flipbip_save_file_secure(mnemonic_gen, encryption)) {
             status = FlipBipStatusSaveError;
         }
         mnemonic_clear();
@@ -560,7 +571,11 @@ static FlipBipStatus flipbip_wallet_init(
     }
 
     // Load the mnemonic from persistent storage
-    if(!flipbip_load_file_secure(w->mnemonic)) return FlipBipStatusLoadError;
+    if(!flipbip_load_file_secure(w->mnemonic)) {
+        // Enclave wallets can't be opened on Flipper clones
+        return format == FlipBipWalletEnclave && !enclave_available ? FlipBipStatusEnclaveError :
+                                                                      FlipBipStatusLoadError;
+    }
     if(mnemonic_check(w->mnemonic) == 0) return FlipBipStatusMnemonicCheckError;
 
     // Only generating a new mnemonic: go straight back to the menu
@@ -700,8 +715,10 @@ static void flipbip_scene_1_enter(void* context) {
             model->page = PAGE_LOADING;
             model->coin_type = coin_type;
             model->warn_insecure = !has_passphrase;
-            model->derivation_text =
-                overwrite ? TEXT_NEW_WALLET : COIN_TEXT_ARRAY[coin_type][COIN_TEXT_DERIV];
+            model->warn_legacy = app->enclave_available &&
+                                 app->encryption == FlipBipEncryptionLegacy;
+            model->derivation_text = overwrite ? TEXT_NEW_WALLET :
+                                                 COIN_TEXT_ARRAY[coin_type][COIN_TEXT_DERIV];
             model->error = NULL;
             model->wallet = NULL;
         },
@@ -710,11 +727,18 @@ static void flipbip_scene_1_enter(void* context) {
     // Slow part: PBKDF2, BIP32 derivation, file I/O. No lock held.
     FlipBipWallet* wallet = malloc(sizeof(FlipBipWallet));
     memzero(wallet, sizeof(FlipBipWallet));
-    const FlipBipStatus status =
-        flipbip_wallet_init(wallet, strength, coin_type, overwrite, passphrase_text);
+    const FlipBipStatus status = flipbip_wallet_init(
+        wallet,
+        strength,
+        coin_type,
+        overwrite,
+        passphrase_text,
+        app->encryption,
+        app->enclave_available);
 
     if(status == FlipBipStatusReturn) {
         // New mnemonic generated and saved, go back to the menu
+        flipbip_suggest_enclave(app);
         flipbip_wallet_free(wallet);
         instance->callback(FlipBipCustomEventScene1Back, instance->context);
         return;
@@ -727,6 +751,8 @@ static void flipbip_scene_1_enter(void* context) {
         error = "Load error";
     } else if(status == FlipBipStatusMnemonicCheckError) {
         error = "Mnemonic check error";
+    } else if(status == FlipBipStatusEnclaveError) {
+        error = "Needs Secure Enclave";
     }
     if(error) {
         flipbip_wallet_free(wallet);

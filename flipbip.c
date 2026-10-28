@@ -34,8 +34,9 @@ static void text_input_callback(void* context) {
         if(has_text && app->import_from_mnemonic == 1) {
             // Validate and save straight from the input buffer
             if(mnemonic_check(app->input_text) != 0 &&
-               flipbip_save_file_secure(app->input_text)) {
+               flipbip_save_file_secure(app->input_text, app->encryption)) {
                 app->mnemonic_menu_text = MNEMONIC_MENU_SUCCESS;
+                flipbip_suggest_enclave(app);
             } else {
                 app->mnemonic_menu_text = MNEMONIC_MENU_FAILURE;
             }
@@ -49,6 +50,10 @@ static void text_input_callback(void* context) {
     if(state == FlipBipTextInputMnemonic) {
         // Leave the scene 1 instance used for text input, back to the menu
         scene_manager_previous_scene(app->scene_manager);
+        if(app->suggest_enclave) {
+            app->encryption_target = FlipBipEncryptionEnclave;
+            scene_manager_next_scene(app->scene_manager, FlipBipSceneEncryption);
+        }
     } else if(state == FlipBipTextInputPassphrase) {
         view_dispatcher_switch_to_view(app->view_dispatcher, FlipBipViewIdSettings);
     } else {
@@ -93,6 +98,19 @@ FlipBip* flipbip_app_alloc() {
     // Settings
     app->bip39_strength = FlipBipStrength256; // 256 bits (24 words)
     app->passphrase = FlipBipPassphraseOff;
+
+    // Encryption follows the saved wallet. Without one, new wallets use the
+    // secure enclave, except on Flipper clones which do not have one.
+    app->enclave_available = flipbip_enclave_available();
+    flipbip_wallet_recover();
+    const FlipBipWalletFormat format = flipbip_wallet_format();
+    if(!app->enclave_available || format == FlipBipWalletLegacy) {
+        app->encryption = FlipBipEncryptionLegacy;
+    } else {
+        app->encryption = FlipBipEncryptionEnclave;
+    }
+    app->encryption_target = app->encryption;
+    app->suggest_enclave = false;
 
     // Main menu
     app->coin_type = CoinTypeBTC0; // 0 (BTC)
@@ -143,6 +161,12 @@ FlipBip* flipbip_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, FlipBipViewRenewConfirm, dialog_ex_get_view(app->renew_dialog));
 
+    app->encryption_dialog = dialog_ex_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher,
+        FlipBipViewEncryptionConfirm,
+        dialog_ex_get_view(app->encryption_dialog));
+
     // End Scene Additions
 
     return app;
@@ -160,12 +184,14 @@ void flipbip_app_free(FlipBip* app) {
     view_dispatcher_remove_view(app->view_dispatcher, FlipBipViewIdSettings);
     view_dispatcher_remove_view(app->view_dispatcher, FlipBipViewIdTextInput);
     view_dispatcher_remove_view(app->view_dispatcher, FlipBipViewRenewConfirm);
+    view_dispatcher_remove_view(app->view_dispatcher, FlipBipViewEncryptionConfirm);
 
     submenu_free(app->submenu);
     flipbip_scene_1_free(app->flipbip_scene_1);
     variable_item_list_free(app->variable_item_list);
     text_input_free(app->text_input);
     dialog_ex_free(app->renew_dialog);
+    dialog_ex_free(app->encryption_dialog);
 
     view_dispatcher_free(app->view_dispatcher);
     furi_record_close(RECORD_GUI);
