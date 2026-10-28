@@ -59,7 +59,7 @@ The application will be compiled and copied onto your device
       - NOTE: `apps_data` folder must already exist on SD card!
   - Saved wallets can be viewed between app runs
   - Two ways of encrypting the saved wallet, chosen in `Settings` -> `Encryption`:
-    - `Enclave` (default for new installs): the mnemonic is encrypted with AES-256 using this Flipper's unique key, which never leaves the secure enclave of the chip
+    - `Enclave` (default for new installs): the mnemonic is encrypted with AES-256 using this Flipper's unique key, which never leaves the secure enclave of the chip (idea by @Astrrra)
       - Only `.flipbip.dat` (and its backup `.flipbip.dat.bak`) is saved; it can only be opened on the same Flipper
       - Copying the SD card to another Flipper will NOT move the wallet: keep your mnemonic written down!
       - Same file format as the [Astrrra/FlipBIP](https://github.com/Astrrra/FlipBIP) fork, so wallets saved by it can be opened
