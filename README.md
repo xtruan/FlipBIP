@@ -58,11 +58,19 @@ The application will be compiled and copied onto your device
   - Wallets are saved to SD card upon creation in `apps_data/flipbip`
       - NOTE: `apps_data` folder must already exist on SD card!
   - Saved wallets can be viewed between app runs
-  - Wallets are encrypted with a randomly generated key, and that key is also encrypted
+  - Two ways of encrypting the saved wallet, chosen in `Settings` -> `Encryption`:
+    - `Enclave` (default for new installs): the mnemonic is encrypted with AES-256 using this Flipper's unique key, which never leaves the secure enclave of the chip (idea by @Astrrra)
+      - Only `.flipbip.dat` (and its backup `.flipbip.dat.bak`) is saved; it can only be opened on the same Flipper
+      - Copying the SD card to another Flipper will NOT move the wallet: keep your mnemonic written down!
+      - Same file format as the [Astrrra/FlipBIP](https://github.com/Astrrra/FlipBIP) fork, so wallets saved by it can be opened
+    - `Legacy`: the wallet is encrypted with a randomly generated key, and that key is also encrypted with a key built into the app
       - `.flipbip.dat` and `.flipbip.key` files are both required to be in `apps_data/flipbip`
       - Backups of both these files `.flipbip.dat.bak` and `.flipbip.key.bak` are also maintained
-      - If you want to externally back up your wallet, I recommend copying all these files, and storing the `key` and `dat` files seperately
-  - NOTE: The wallets should be decently tough to crack off of a Flipper, however any Flipper with the app installed can load a wallet in the `apps_data/flipbip` directory if both the `key` and `dat` file are present. Therefore, it is HIGHLY RECOMMENDED to use the BIP39 passphrase functionality and store the passphrase in your brain or on paper separately from the Flipper!
+      - NOTE: The wallets should be decently tough to crack off of a Flipper, however any Flipper with the app installed can load a wallet in the `apps_data/flipbip` directory if both the `key` and `dat` file are present
+    - Wallets saved by earlier versions keep using `Legacy` encryption; the app recommends switching on the loading screen, and offers to switch after a new wallet is generated or imported with `Legacy`
+    - Switching in settings re-encrypts the saved wallet; it is written to temporary files and checked before it replaces the old one
+    - Flipper clones without a secure enclave (e.g. Kiisu) always use `Legacy`
+  - Either way, it is HIGHLY RECOMMENDED to use the BIP39 passphrase functionality and store the passphrase in your brain or on paper separately from the Flipper!
 - BIP39 passphrase support
   - Configured in settings, not persisted between runs for security
 - Import your own mnemonic
