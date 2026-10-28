@@ -17,7 +17,7 @@
 #include "flipbip_coins.h"
 #include "helpers/flipbip_file.h"
 
-#define FLIPBIP_VERSION  "v2.0"
+#define FLIPBIP_VERSION  "v2.1"
 #define TEXT_BUFFER_SIZE 256
 
 typedef struct {
